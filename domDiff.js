@@ -1,0 +1,3 @@
+function createDom(tagName, props) {
+
+}
