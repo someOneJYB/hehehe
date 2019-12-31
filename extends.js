@@ -61,10 +61,10 @@ Array.prototype.filter = function(cb){
 
 Array.prototype.reduce3 = function(cb, initial) {
     let pre = this[0];
-    let index = 0
+    let index = 1
     if(initial) {
        pre = initial
-        index++
+       index = 0
     }
     for(index; index < this.length; index++) {
        pre = cb(pre, this[index])
