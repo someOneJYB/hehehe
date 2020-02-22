@@ -5,19 +5,28 @@ let index =  0
 const store = {
     dispatch: () => {console.log('store.dispatch')}
 }
+
 const fn = (next) => (...arg) => {
     console.log('start');
+    console.log(next, 'next')
     next(index++);
     console.log('next end');
     console.log('end')
 }
+// const fn1 = (next) => (dis) => () => {
+//     dis()
+// }
+
 function compose(fns) {
-    let next = fns[fns.length - 1](store.dispatch);
-    fns.reverse().slice(1).forEach(item => {
-        next = item(next)
-    })
-    return next
+    return function(real) {
+        let next = fns[fns.length - 1](real);
+        fns.reverse().slice(1).forEach(item => {
+            next = item(next)
+        })
+        return next
+    }
 }
+store.dispatch = compose([fn])(store.dispatch)
 // 那么 co
 // 这个问题来自于保证异步的顺序
 // 1、使用 async + await
