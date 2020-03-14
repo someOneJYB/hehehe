@@ -3,6 +3,7 @@ function P(fn) {
     var state = 'pending';
     var value = null;
     var callbacks = [];
+    // this 的定义下对应着 p 初始化的变量，所以在第一次的 promise 传递之后 value 变成了打开的 promise 传递的值
     this.then = function(onFulfilled, onRejected) {
         console.log(this.getStatus(), 'call then 方法')
         return new P(function (res, rej) {
@@ -531,6 +532,7 @@ let p
 //     // val.then 调用后 value 对应 p 的 3，bridgePromise 访问的是 p 的数据 fulfilled value 3 onFufilled 的是 resolve 方法所以执行的是value=3，正好把外层的 value 赋值为3。然后执行函数返回结果undefined 打开 promise， resolve是undefined，新的 promise state 是undefined，new 出来的 P state 是undefined
 //     resolve(p)
 // });
+// 例子1
 var promise = new P(function(resolve, reject) {
 // //     // 内层的 P 执行结束以后逐层退出函数栈
     p = new P(function(res, rej) {
@@ -554,4 +556,12 @@ promise.then(function(value) {
 // }).catch((err) => {console.log(0);return err}).catch(err => {console.log(err);return 1})
 
 
-// 总结一下在真实的 promise 中没有处理 then 中的异常，在这个里面处理了then中的异常，同样比较糟糕的是使用了全局变量处理 unhandleRejection 作为标记
+// 总结一下在真实的 promise 中没有处理 then 中的异常，在这个里面处理了then中的异常，同样比较糟糕的是使用了全局变量处理 unhandleRejection 作为标记, promise 的状态不可以改变，但是在 then 和 catch 的时候都会返回一个新的 promise，乔接的函数中返回的是一个新的 promise，但里面访问的是上一个 promise 中的 value  state，在 resolve 的时候判断是否是 promise 如果是 promise 返回一个新函数并打开promise内部把值传递出来给到最外层的 promise
+// resolve 的是普通值 调用乔接函数 执行 then 中的注册方法传递 value
+// resolve 是一个 promise 调用 then 执行乔接函数，注意乔接函数中的 onFufilled 是 没有执行完的 resolve 函数，在执行过程中访问的 state 是已经打开在内部的 state 为 resolved
+// 在promise中无法处理异步的error，
+new Promise(function(resolve, reject) {
+    setTimeout(() => {
+        throw new Error("Whoops!");
+    }, 1000);
+}).catch(alert);

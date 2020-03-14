@@ -2,7 +2,12 @@ function P(fn) {
     var state = 'pending';
     var value = null;
     var callbacks = [];
+    this.getStatus = function() {
+        return {'state': state, 'value':  value}
+    }
     this.then = function(onFulfilled, onRejected) {
+        this.getStatus()
+        console.log('返回一个新的 promise')
         return new P(function (res, rej) {
             // 处理成对象的原因是防止调用第一个 promise 中的 resolve 形成 死循环，保证每一次的 resolve 都是新的。
             bridgePromise({
@@ -24,6 +29,7 @@ function P(fn) {
         }
         state = 'fulfilled';
         value = val;
+        console.log('resolve',val)
         // 为什么不传入 resolve 的原因是无法记住 promise 内部的 resolve，但是这里传递的话就是当前的 resolve 就会造成递归调用
         setTimeout(function(){
             callbacks.forEach(function(i) {bridgePromise(i)})
@@ -41,6 +47,7 @@ function P(fn) {
         state = 'rejected';
         value = val;
         // 为什么不传入 resolve 的原因是无法记住 promise 内部的 resolve，但是这里传递的话就是当前的 resolve 就会造成递归调用
+
         setTimeout(function(){
             callbacks.forEach(function(i) {bridgePromise(i)})
         }, 0)
@@ -58,22 +65,23 @@ function P(fn) {
             return;
         }
         //  在这里执行了 resolve
-        console.log('resolve value', value)
+        console.log('resolve value', value, callbacks, state)
         ret = cb(value);
         //  在这里执行了 resolve
-        console.log('resolve ret', ret)
+        console.log('resolve ret', ret, callbacks, state)
         promiseObj.resolve(ret);
     }
     fn(resolve, reject)
 }
 // test 测试如下：
 var promise = new P(function(resolve, reject) {
-    return new P(function(res, rej) {
-        setTimeout(function() {
-            console.log('第一个回调');
-            resolve(3);
-        }, 2000);
-    });
+    resolve(3)
+    // return new P(function(res, rej) {
+    //     setTimeout(function() {
+    //         // console.log('第一个回调');
+    //         resolve(3);
+    //     }, 2000);
+    // });
 });
 // 在新的 promise 里面 setTimeout 执行太慢导致 返回了 undefined 导致 第三个回调
 promise.then(function(value) {
@@ -218,3 +226,10 @@ new Promise(function(resolve, reject) {
 })
 // co 返回一个大的 promise，先执行
 // p1.then(v =)
+//
+promise.then(function(value) {
+    console.log(value, '2')
+    return value * 3
+}).then(function(value) {
+    console.log(value, '3')
+});

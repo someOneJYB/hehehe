@@ -76,3 +76,16 @@ store.dispatch = compose()(store.dispatch)
             w()
             // a1
 // 如果我们传入的是一个对象仅仅改变属性发挥闭包的深度引用，否则就是认为的普通常量引用一样，深度理解闭包就此结束。
+// 不切断变量的地址会一直引用着，否则的话就切断了复制的地址的联系
+
+            function foo(a) {
+                console.log(a)
+                var b = 2;
+                function c() {}
+                var d = function() {};
+                function a(){}
+                b = 3;
+
+            }
+
+            foo(1);
