@@ -1,0 +1,17 @@
+{
+  "name": "react-redux",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Provider.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "prop-types": "^15.7.2",
+    "react": "^16.13.0",
+    "redux": "^4.0.5"
+  }
+}
