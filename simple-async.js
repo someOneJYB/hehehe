@@ -48,4 +48,14 @@ try {
 } catch(e) {
     console.log('o')
 }
+async function f() {
+    await p
+    console.log('ok')
+}
 
+// 等同于
+function f() {
+    return RESOLVE(p).then(() => {
+        console.log('ok')
+    })
+}
