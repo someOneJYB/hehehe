@@ -1,6 +1,8 @@
 // 使用 onHashChange 方法使用 url 加锚点也就是 hash 的变化不会触发页面的刷新改变页面的url，不会导致页面再次执行 onload 事件，history.go 也会不会导致页面的刷新，所以页面不刷新的方式可以使用改变 hash
 // 1、首先保证路径中含有 # 导出push、pop go goBack listen方法
-// 2、注册 hashChange 方法，通过判断 hash 对比，所以需要在监听者里面执行 listener 然后合并对象，go 方法依赖的是 history.go 可以进行回滚，push 和 replace 改变的是 location.hash 仍然会引起 hashchange 所以也需要处理一下记录已经处理过了不需要处理，因此和 go 方法的处理方式不同
+// 2、注册 hashChange 方法，通过判断 hash 对比，所以需要在监听者里面执行 listener 然后合并对象，go 方法依赖的是 history.go 可以进行回滚，
+// push 和 replace 改变的是 location.hash 仍然会引起 hashchange 所以也需要处理一下,记录已经处理过了不需要处理，因此和 go 方法的处理方式不同
+// push replace 手动修改 hash 但是也会造成 hashChange 被触发，因此需要在 ignorePath 中在触发hashChange的时候不处理
 const Sunscription = require('./historySubscription')()
 let ignorePath = null
 const encodePath = (path) =>

@@ -1,20 +1,20 @@
 Function.prototype.call = function(context) {
     let result = [];
     context.fn = this;
-    for(var i = 0; i < arguments.length; i++) {
+    for(var i = 1; i < arguments.length; i++) {
         result.push('arguments[' + i + ']')
     }
-    let r = eval(context + '.fn('+ result.join(',') + ')')
+    let r = eval( 'context.fn('+ result.join(',') + ')')
     delete context.fn
     return r;
 }
 Function.prototype.apply = function(context) {
     let result = [];
     context.fn = this;
-    for(var i = 0; i < arguments.length; i++) {
+    for(var i = 1; i < arguments.length; i++) {
         result.push('arguments[' + i + ']')
     }
-    let r = eval(context + '.fn('+ result + ')')
+    let r = eval( 'context.fn('+ result + ')')
     delete context.fn
     return r
 }

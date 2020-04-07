@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+<script>
+    class Promise {
+        constructor(excutorCallBack){
+            this.status = 'pending';
+            this.value = undefined;
+            this.fulfillAry = [];
+            this.rejectedAry = [];
+            let resolveFn = result => {
+                if(this.status !== 'pending') return;
+                this.status = 'fulfilled';
+                this.value = result;
+                let timer = setTimeout(() => {
+                    this.fulfillAry.forEach(item=>item(this.value))
+                }, 0);
+            }
+            let rejectedFn = reason => {
+                if(this.value !== 'pedding') return;
+                this.status = 'rejected';
+                this.value = reason;
+                let timer = setTimeout(() => {
+                    this.rejectedAry.forEach(item=>item(this.value))
+                }, 0);
+            }
+            try {
+                excutorCallBack(resolveFn,rejectedFn)
+            } catch(err) {
+                rejectedFn(err)
+            }
+        }
+        then(fulfilledCallBack,rejectedCallBack) {
+            typeof fulfilledCallBack !== 'function' ? fulfilledCallBack = result => result : null;
+            typeof rejectedCallBack !== 'function' ? rejectedCallBack = reason => {
+                throw new Error(reason instanceof Error ? reason.message : reason)
+            } : null;
+            return new Promise((reslove, reject) => {
+                if(this.status === 'fulfilled') {
+                    let x = fulfilledCallBack(this.value);
+                    x instanceof Promise ? x.then(reslove, reject):reslove(x)
+                }
+                if(this.status === 'rejected') {
+                    let x = rejectedCallBack(this.value);
+                    x instanceof Promise ? x.then(reslove, reject):reslove(x)
+                }
+                if(this.status === 'pending') {
+                    this.fulfillAry.push(()=>{
+                        try {
+                            let x = fulfilledCallBack(this.value);
+                            x instanceof Promise ? x.then(reslove, reject):reslove(x)
+                        } catch(err) {
+                            reject(err)
+                        }
+                    })
+                    this.rejectedAry.push(()=>{
+                        try {
+                            let x = rejectedCallBack(this.value);
+                            x instanceof Promise ? x.then(reslove,reject) : reslove(x);
+                        } catch(err) {
+                            reject(err);
+                        }
+                    })
+                }
+            })
+        }
+        catch(rejectedCallBack){
+            return this.then(null,rejectedCallBack);
+        }
+        static resolve (value) {
+            if (value instanceof Promise) return value
+            return new Promise(resolve => resolve(value))
+        }
+    }
+    var t1 = new Promise((resolve,rejected)=>{
+        resolve('test');
+    })
+    // t1.then((value)=>{console.log(value)})
+    setTimeout(()=>{
+        let f = t1.then((value)=>{console.log(value);return 123}).then((value)=>{console.log(value)})
+        console.log(f)
+    },3000);
+</script>
+</html>
