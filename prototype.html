@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    let Fn = function(){}
+    Object.prototype.a = function(){console.log('a')}
+    Function.prototype.b = function(){console.log('b')}
+    var f = new Fn();
+    // f is a object cannot 继承 Function
+    f.a();
+    // a
+    f.b();
+    // typeerror so cannot get f.b
+    Fn.a();
+    // a can get object and function
+    Fn.b();
+    // b
+</script>
+</body>
+</html>
