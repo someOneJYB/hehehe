@@ -83,7 +83,9 @@
     })
     // t1.then((value)=>{console.log(value)})
     setTimeout(()=>{
-        let f = t1.then((value)=>{console.log(value);return 123}).then((value)=>{console.log(value)})
+        let f = t1.then((value)=>{console.log(value);return new Promise(function(r, j){
+            r('hehehe')
+        })}).then((value)=>{console.log(value)})
         console.log(f)
     },3000);
 </script>
