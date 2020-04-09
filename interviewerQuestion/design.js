@@ -11,9 +11,33 @@ SingleObject.getInstance = (function () {
         return instance;
     }
 })()
+function singleInstance(){
+    let instance;
+    return function() {
+        {
+            if (!instance) {
+                instance = { a: 1 };
+            }
+            return instance;
+        }
+    }
+}
+const all = singleInstance();
+const obj11 = all();
+const obj22 = all();
+// SingleObject.getInstance 是一个函数所以已经形成了一个作用域，返回的是内部的函数保留着对变量 instance 的引用,等同于上面的例子，只不过一个用的是立即执行函数，一个用的是普通函数。
 const obj1 = SingleObject.getInstance();
 const obj2 = SingleObject.getInstance();
 console.log(obj1 === obj2); // true
+// 如果写成(function () {
+//     let instance;
+//     return function () {
+//         if (!instance) {
+//             instance = new SingleObject();
+//         }
+//         return instance;
+//     }
+// })()（） 没有被指向开辟的是新内存 obj1、obj2分别对应自身的内存空间，无法做到闭包
 // 工厂模式
 // 某个需要创建的具体对象
 class Product {

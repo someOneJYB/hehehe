@@ -47,6 +47,21 @@ function extendsProp(target, obj) {
     return extend(target, obj)
 
 }
+function flattenArr(arr) {
+    var result = [];
+    return flat(arr);
+    function flat(arr) {
+        arr.forEach(item => {
+            if(item instanceof Array) {
+                result.concat(flat(item))
+            } else {
+                result.push(item)
+            }
+        })
+        return result
+    }
+
+}
 
 Array.prototype.filter = function(cb){
     let result = []

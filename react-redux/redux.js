@@ -70,7 +70,11 @@ function applyMiddleware(middlewares) {
         })
         // 改写 dispatch 可以 action 先过中间件
         const dispatch = compose(middlewareArr)(store.dispatch);
-        store.dispatch = dispatch;
+        return {
+            getState: store.getState,
+            dispatch: dispatch,
+            subscribe: store.subscribe,
+        }
     }
 }
 

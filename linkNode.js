@@ -80,8 +80,8 @@ function bubleSort(arr) {
                 arr[i] = arr[j];
                 arr[j] = t;
             }
-            if(flag) {
-                break;
+            if(!flag) {
+                return
             }
         }
     }
@@ -89,8 +89,37 @@ function bubleSort(arr) {
 
 function quickSrot(arr) {
     // quickSort 主要是对比哨兵
+    if(arr.length <= 1) return arr
+    let mid = arr.length / 2;
+    let midInArr = arr[mid];
+    arr.splice(mid, 1);
+    let left = [];
+    let right = [];
+    for(let i = 0;  i < arr.length; i++) {
+        if(arr[i] < midInArr) {
+            left.push(left[i])
+        } else {
+            right.push(arr[i])
+        }
+    }
+    return quickSrot(left).concat(midInArr, quickSrot(right))
+
 }
-
-function twoSort() {
-
+function merge(left, right) {
+    var result = [];
+    while(left.length > 0 && right.length > 0) {
+        if(left[0] < right[0]) {
+            result.push(left.shift())
+        }else {
+            result.push(right.shift())
+        }
+    }
+    return result.concat(left).concat(right)
+}
+function mergeSort(arr) {
+    if (arr.length <= 1) return arr;
+    let mid = arr.length / 2;
+    let left = arr.slice(0, mid);
+    let right = arr.slice(mid);
+    return merge(mergeSort(left), mergeSort(right))
 }
