@@ -101,10 +101,10 @@ function co(gen) {
         function next(ret) {
             // 判断是否结束 generator 则打开 promise
             if (ret.done) return resolve(ret.value);
-            // 分别判断了 object promise 对象 数组、gennerator 函数
+            // 分别判断了 object promise 对象 数组、gennerator 函数，把值变成 promise，按顺序执行下去里面的
             var value = toPromise.call(ctx, ret.value);
             // 如果是 generator 就会导致 value 变成了一个大的 promise
-            // 因此普通值就会导致无法导出
+            // 因此普通值就会导致无法导出，在下一个 promise 中继续执行next方法直到可以打开
             if (value && isPromise(value)) return value.then(onFulfilled, onRejected);
             return onRejected(new TypeError('You may only yield a function, promise, generator, array, or object, '
                 + 'but the following object was passed: "' + String(ret.value) + '"'));
@@ -130,13 +130,7 @@ function toPromise(obj) {
     return obj;
 }
 
-/**
- * Convert a thunk to a promise.
- *
- * @param {Function}
- * @return {Promise}
- * @api private
- */
+// 把函数转化成 thunk 形式
 
 function thunkToPromise(fn) {
     var ctx = this;
@@ -149,28 +143,12 @@ function thunkToPromise(fn) {
     });
 }
 
-/**
- * Convert an array of "yieldables" to a promise.
- * Uses `Promise.all()` internally.
- *
- * @param {Array} obj
- * @return {Promise}
- * @api private
- */
-
+// 转化成把array中的元素变成promise
 function arrayToPromise(obj) {
     return Promise.all(obj.map(toPromise, this));
 }
 
-/**
- * Convert an object of "yieldables" to a promise.
- * Uses `Promise.all()` internally.
- *
- * @param {Object} obj
- * @return {Promise}
- * @api private
- */
-
+// 对象变成 promise
 function objectToPromise(obj){
     var results = new obj.constructor();
     var keys = Object.keys(obj);
@@ -195,38 +173,19 @@ function objectToPromise(obj){
     }
 }
 
-/**
- * Check if `obj` is a promise.
- *
- * @param {Object} obj
- * @return {Boolean}
- * @api private
- */
+// 判断 promise 类型
 
 function isPromise(obj) {
     return 'function' == typeof obj.then;
 }
 
-/**
- * Check if `obj` is a generator.
- *
- * @param {Mixed} obj
- * @return {Boolean}
- * @api private
- */
-
+// 判断是不是 generator
 function isGenerator(obj) {
     return 'function' == typeof obj.next && 'function' == typeof obj.throw;
 }
 
-/**
- * Check if `obj` is a generator function.
- *
- * @param {Mixed} obj
- * @return {Boolean}
- * @api private
- */
 
+// 检查是否是genertor
 function isGeneratorFunction(obj) {
     var constructor = obj.constructor;
     if (!constructor) return false;
@@ -234,14 +193,8 @@ function isGeneratorFunction(obj) {
     return isGenerator(constructor.prototype);
 }
 
-/**
- * Check for plain object.
- *
- * @param {Mixed} val
- * @return {Boolean}
- * @api private
- */
 
+// 检查类型
 function isObject(val) {
-    return Object == val.constructor;
+    return Object.prototype.toString.call(val) === '[object Object]';
 }
