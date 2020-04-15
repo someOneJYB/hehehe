@@ -36,7 +36,7 @@ function co(gen) {
         }
         function next(ret) {
             if(ret.done) resolve(ret.value);
-            // 分别判断了 object promise 对象 数组、gennerator 函数
+            // 分别判断了 object promise 对象 数组、gennerator 函数,新增了对基本类型进行处理
             var value = toPromise.call(ctx, ret.value);
             // 如果是 generator 就会导致 value 变成了一个大的 promise
             if (value && isPromise(value)) return value.then(onFulfilled, onRejected);

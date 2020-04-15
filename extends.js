@@ -94,3 +94,54 @@ Array.prototype.map1 = function(cb) {
     }
     return result;
 }
+// 处理循环引用、undefined、正则、函数
+function getType(v, extend) {
+    if(Object.prototype.toString.call(v) === '[object RegExp]') {
+        return new RegExp(v)
+    }
+
+    if(Object.prototype.toString.call(v) === '[object Function]') {
+        let F = function () {
+            return v
+        }
+        var final = eval('F()');
+        return final
+    }
+
+    if(Object.prototype.toString.call(v) === '[object Array]') {
+        return v.slice()
+    }
+
+    if(Object.prototype.toString.call(v) === '[object Object]') {
+        return extend({}, v)
+    }
+
+
+    return null;
+
+}
+
+function cloneObj(obj) {
+    let target = {};
+    let hash = new Map()
+    function extend(target, obj) {
+        if(hash.get(obj)) {
+            return hash.get(obj)
+        } else {
+            hash.set(obj, target)
+        }
+        for(let key in obj) {
+            if(obj.hasOwnProperty(key)) {
+               let v = obj[key]
+               let val = getType(v, extend);
+               if(val) {
+                   target[key] = val
+               } else {
+                   target[key] = obj[key]
+               }
+            }
+        }
+        return target;
+    }
+    return extend(target, obj)
+}
