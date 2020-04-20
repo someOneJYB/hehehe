@@ -139,3 +139,70 @@ export function bindActionCreators(actionCreators, dispatch) {
      */
     return boundActionCreators
 }
+// 模拟为什么需要 nextListener 和 currentListener 在 redux 中，保证了在本次循环中新增或者减少的next被记录，同时被循环的数组不发生变化，不会被新增或减少打乱
+function Listener() {
+    let now = [];
+    let next = now;
+    let isDispatching = false;
+    function ensureCanMutateNextListeners() {
+        // console.log('now', now, 'next', next, now === next, '是否是')
+        if (now === next) {
+            console.log('更新next')
+            next = now.slice()
+        }
+    }
+    function sub(fn) {
+        if(isDispatching) return;
+        ensureCanMutateNextListeners()
+        next.push(fn)
+        console.log('sub next',next, 'now', now)
+        return function unsubscribe() {
+            if (isDispatching) {
+                throw new Error(
+                    'You may not unsubscribe from a store listener while the reducer is executing. ' +
+                    'See https://redux.js.org/api/store#subscribelistener for more details.'
+                )
+            }
+
+
+            ensureCanMutateNextListeners()
+            const index = next.indexOf(fn)
+            next.splice(index, 1)
+            now = null
+            console.log('unsub next',next, 'now', now)
+        }
+    }
+    function dispatch(action) {
+
+        if (isDispatching) {
+            throw new Error('Reducers may not dispatch actions.')
+        }
+
+        try {
+            isDispatching = true
+        } finally {
+            isDispatching = false
+        }
+// 执行的时候如何让引用的实际变了，通过next = now.slice 指向新的地址和listeners不相等了，否则的话listener 会随着变化，在单纯执行的liten函数中没有执行subscribe或者unsubscribe就不会导致next执行slice，造成listener不共享
+        const listeners = (now = next)
+        // 形成了自己的会计作用域吗？
+        for (var i = 0; i < listeners.length; i++) {
+            console.log('now', now, 'next', next, 'listeners', listeners)
+            console.log('更新next后listener是否相等', listeners === next)
+            const listener = listeners[i]
+            listener()
+        }
+
+        return action
+    }
+    return {
+        sub,
+        dispatch,
+    }
+}
+let st =  Listener()
+st.sub(() => console.log(9))
+let f = st.sub(() => console.log(19))
+st.sub(() => {console.log(119); f()})
+st.sub(() => {console.log('add sub');st.sub(() => console.log(1119))})
+st.dispatch()
