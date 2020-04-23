@@ -94,10 +94,14 @@ Array.prototype.map1 = function(cb) {
     }
     return result;
 }
-// 处理循环引用、undefined、正则、函数
+// 处理循环引用、undefined、正则、函数、Date类型
 function getType(v, extend) {
     if(Object.prototype.toString.call(v) === '[object RegExp]') {
         return new RegExp(v)
+    }
+
+    if(Object.prototype.toString.call(v) === '[object Date]') {
+        return new Date(v)
     }
 
     if(Object.prototype.toString.call(v) === '[object Function]') {
@@ -145,3 +149,78 @@ function cloneObj(obj) {
     }
     return extend(target, obj)
 }
+// 处理数组引用和对象引用以及函数正则Date类型，未处理object上的symbol属性元素因为 for in 是无法遍历出来的
+var clone = (function clone(){
+    let arrHash = new Map();
+    let objHash = new Map()
+    function getType(v, extend) {
+        if(Object.prototype.toString.call(v) === '[object RegExp]') {
+            return new RegExp(v)
+        }
+        if(Object.prototype.toString.call(v) === '[object Date]') {
+            return new Date(v)
+        }
+
+        if(Object.prototype.toString.call(v) === '[object Function]') {
+            let F = function () {
+                return v
+            }
+            var final = eval('F()');
+            return final
+        }
+
+        if(Object.prototype.toString.call(v) === '[object Array]') {
+            var result = [];
+            if(arrHash.get(v)) return v;
+            arrHash.set(v, result);
+            for(let i = 0; i < v.length; i++) {
+                let y = getType(v[i], extend)
+                if(y) {
+                    result.push(y)
+                } else {
+                    result.push(v[i])
+                }
+            }
+            return result
+        }
+
+        if(Object.prototype.toString.call(v) === '[object Object]') {
+            return extend({}, v)
+        }
+
+
+        return null;
+
+    }
+    function cloneObj(obj) {
+        let target = {};
+        function extend(target, obj) {
+            if(objHash.get(obj)) {
+                return objHash.get(obj)
+            } else {
+                objHash.set(obj, target)
+            }
+            for(let key in obj) {
+                if(obj.hasOwnProperty(key)) {
+                    let v = obj[key]
+                    let val = getType(v, extend);
+                    if(val) {
+                        target[key] = val
+                    } else {
+                        target[key] = obj[key]
+                    }
+                }
+            }
+            return target;
+        }
+        return extend(target, obj)
+    }
+    return {
+        cloneObj
+    }
+})()
+// 测试新的处理数组和对象的深拷贝函数
+let o = {a: [1, 2, 3], b: [{ a: 13}, function(){}, 123, /123/], v: {w:45}}
+o.b[0].r = o
+o.b[1] = o.b
+let g9 = clone.cloneObj(o)
