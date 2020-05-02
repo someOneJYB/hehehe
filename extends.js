@@ -224,3 +224,223 @@ let o = {a: [1, 2, 3], b: [{ a: 13}, function(){}, 123, /123/], v: {w:45}}
 o.b[0].r = o
 o.b[1] = o.b
 let g9 = clone.cloneObj(o)
+// 处理循环引用、undefined、正则、函数
+var clone = (function clone(){
+    let arrHash = new Map();
+    let hash = new Map()
+    function getType(v, extend) {
+        if(Object.prototype.toString.call(v) === '[object RegExp]') {
+            return new RegExp(v)
+        }
+
+        if(Object.prototype.toString.call(v) === '[object Function]') {
+            let F = function () {
+                return v
+            }
+            var final = eval('F()');
+            return final
+        }
+
+        if(Object.prototype.toString.call(v) === '[object Array]') {
+            var result = [];
+            if(arrHash.get(v)) return v;
+            else arrHash.set(v, result);
+            for(let i = 0; i < v.length; i++) {
+                let y = getType(v[i], extend)
+                if(y) {
+                    result.push(y)
+                } else {
+                    result.push(v[i])
+                }
+            }
+            return result
+        }
+
+        if(Object.prototype.toString.call(v) === '[object Object]') {
+            return extend({}, v)
+        }
+
+
+        return null;
+
+    }
+    function cloneObj(obj) {
+        let target = {};
+        function extend(target, obj) {
+            if(hash.get(obj)) {
+                return hash.get(obj)
+            } else {
+                hash.set(obj, target)
+            }
+            for(let key in obj) {
+                if(obj.hasOwnProperty(key)) {
+                    let v = obj[key]
+                    let val = getType(v, extend);
+                    if(val) {
+                        target[key] = val
+                    } else {
+                        target[key] = obj[key]
+                    }
+                }
+            }
+            return target;
+        }
+        return extend(target, obj)
+    }
+    return {
+        cloneObj
+    }
+})()
+let o = {a: [1, 2, 3], b: [{ a: 13}, function(){}, 123, /123/], v: {w:45}}
+o.b[0].r = o
+o.b[1] = o.b
+let g9 = clone.cloneObj(o)
+// 深克隆
+const mapTag = '[object Map]';
+const setTag = '[object Set]';
+const arrayTag = '[object Array]';
+const objectTag = '[object Object]';
+const argsTag = '[object Arguments]';
+
+const boolTag = '[object Boolean]';
+const dateTag = '[object Date]';
+const numberTag = '[object Number]';
+const stringTag = '[object String]';
+const symbolTag = '[object Symbol]';
+const errorTag = '[object Error]';
+const regexpTag = '[object RegExp]';
+const funcTag = '[object Function]';
+
+const deepTag = [mapTag, setTag, arrayTag, objectTag, argsTag];
+
+
+function forEach(array, iteratee) {
+    let index = -1;
+    const length = array.length;
+    while (++index < length) {
+        iteratee(array[index], index);
+    }
+    return array;
+}
+
+function isObject(target) {
+    const type = typeof target;
+    return target !== null && (type === 'object' || type === 'function');
+}
+
+function getType(target) {
+    return Object.prototype.toString.call(target);
+}
+
+function getInit(target) {
+    const Ctor = target.constructor;
+    return new Ctor();
+}
+
+function cloneSymbol(targe) {
+    return Object(Symbol.prototype.valueOf.call(targe));
+}
+
+function cloneReg(targe) {
+    const reFlags = /\w*$/;
+    const result = new targe.constructor(targe.source, reFlags.exec(targe));
+    result.lastIndex = targe.lastIndex;
+    return result;
+}
+
+function cloneFunction(func) {
+    // 关于正则，查看正则专题
+    const bodyReg = /(?<={)(.|\n)+(?=})/m;
+    const paramReg = /(?<=\().+(?=\)\s+{)/;
+    const funcString = func.toString();
+    // func.prototype，箭头函数的prototype为undefined
+    if (func.prototype) {
+        console.log('普通函数');
+        const param = paramReg.exec(funcString);
+        const body = bodyReg.exec(funcString);
+        if (body) {
+            console.log('匹配到函数体：', body[0]);
+            if (param) {
+                const paramArr = param[0].split(',');
+                console.log('匹配到参数：', paramArr);
+                return new Function(...paramArr, body[0]);
+            } else {
+                return new Function(body[0]);
+            }
+        } else {
+            return null;
+        }
+    } else {
+        return eval(funcString);
+    }
+}
+
+function cloneOtherType(targe, type) {
+    const Ctor = targe.constructor;
+    switch (type) {
+        case boolTag:
+        case numberTag:
+        case stringTag:
+        case errorTag:
+        case dateTag:
+            return new Ctor(targe);
+        case regexpTag:
+            return cloneReg(targe);
+        case symbolTag:
+            return cloneSymbol(targe);
+        case funcTag:
+            return cloneFunction(targe);
+        default:
+            return null;
+    }
+}
+
+function clone(target, map = new WeakMap()) {
+
+    // 克隆原始类型
+    if (!isObject(target)) {
+        return target;
+    }
+
+    // 初始化
+    const type = getType(target);
+    let cloneTarget;
+    if (deepTag.includes(type)) {
+        cloneTarget = getInit(target, type);
+    } else {
+        return cloneOtherType(target, type);
+    }
+
+    // 防止循环引用
+    if (map.get(target)) {
+        return map.get(target);
+    }
+    map.set(target, cloneTarget);
+
+    // 克隆set
+    if (type === setTag) {
+        target.forEach(value => {
+            cloneTarget.add(clone(value, map));
+        });
+        return cloneTarget;
+    }
+
+    // 克隆map
+    if (type === mapTag) {
+        target.forEach((value, key) => {
+            cloneTarget.set(key, clone(value, map));
+        });
+        return cloneTarget;
+    }
+
+    // 克隆对象和数组
+    const keys = type === arrayTag ? undefined : Object.keys(target);
+    forEach(keys || target, (value, key) => {
+        if (keys) {
+            key = value;
+        }
+        cloneTarget[key] = clone(target[key], map);
+    });
+
+    return cloneTarget;
+}

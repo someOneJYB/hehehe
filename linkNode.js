@@ -123,3 +123,140 @@ function mergeSort(arr) {
     let right = arr.slice(mid);
     return merge(mergeSort(left), mergeSort(right))
 }
+class TreeNode {
+    constructor(value) {
+        this.value = value
+        this.left = null;
+        this.right = null;
+    }
+}
+class WtoTree {
+    insert(value) {
+        var node = new TreeNode(value);
+        if(!this.root){//判断是否为根节点
+            this.root = node;
+        }else {
+            // 不是根节点则新增节点
+            insertNode(this.root, node);
+        }
+        function insertNode(node,newNode){
+            //约定右孩子都大于左孩子节点
+            if(newNode.value < node.value){
+                if(!node.left){//没有左孩子，则新增左孩子
+                    node.left = newNode;
+                }else{
+                    //如果有左孩子则递归算法实现插入左孩子节点
+                    insertNode(node.left, newNode);
+                }
+            }else {
+                //如果有孩子为null，则新增右孩子
+                if(!node.right){
+                    node.right = newNode;
+                }else{
+                    //如果有左孩子则递归算法实现插入右孩子节点
+                    insertNode(node.right,newNode);
+                }
+            }
+        };
+    };
+
+    preOrder(node=this.root) {
+        if(!node) return;
+        console.log(node.value);
+        this.preOrder(node.left)
+        this.preOrder(node.right)
+    }
+
+    midOrder(node=this.root) {
+        if(!node) return;
+        this.midOrder(node.left)
+        console.log(node.value);
+        this.midOrder(node.right)
+    }
+
+    backOrder(node=this.root) {
+        if(!node) return;
+        this.backOrder(node.left)
+        this.backOrder(node.right)
+        console.log(node.value);
+    }
+
+    searchMax(node = this.root){
+        let value;
+        if(node) {
+            value = node.value;
+            node = node.right;
+            while (node) {
+                if (node) {
+                    value = node.value
+                }
+                node = node.right
+            }
+        }
+        return value
+    }
+
+    searchMin(node=this.root){
+        let value;
+        if(node) {
+            value = node.value;
+            node = node.left
+            while (node) {
+                if (node) {
+                    value = node.value
+                }
+                node = node.left
+            }
+        }
+        return value
+    }
+
+    getValue(node=this.root,val){
+        if(!node){
+            return false;
+        }
+        if(node.value < val){
+            return this.getValue(node.right, val);
+        }else if(node.value>val){
+            return this.getValue(node.left,val)
+        }else{
+            return true;
+        }
+    }
+    getNodeNumber(node = this.root) {
+        // 统计二叉树中结点个数的算法 （先根遍历）
+        let count = 0;
+
+        if(node){
+            count++;   // 根结点+1
+            count += this.getNodeNumber(node.left);  // 加上左子树上结点数
+            count += this.getNodeNumber(node.right);  // 加上右子树上结点数
+        }
+
+        return count;
+    }
+    getDepth(root = this.root) {
+        if (root === null) {
+            return 0;
+        } else {
+            var leftDepth = this.getDepth(root.left),
+                rightDepth = this.getDepth(root.right);
+            var childDepth = leftDepth > rightDepth ? leftDepth : rightDepth;
+            return 1 + childDepth;
+        }
+    };
+
+
+}
+
+var nodes = [6,2,3,4,9,8,7,12,1,22]
+var binaryTree = new WtoTree();
+nodes.forEach(function(key){
+    binaryTree.insert(key);
+});
+console.log('前序')
+binaryTree.preOrder()
+console.log('中序')
+binaryTree.midOrder()
+console.log('后序')
+binaryTree.backOrder()
