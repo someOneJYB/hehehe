@@ -130,7 +130,12 @@ class TreeNode {
         this.right = null;
     }
 }
+const queue = {}
 class WtoTree {
+    constructor() {
+        this.leftDepth = 0;
+        this.rightDepth = 0;
+    }
     insert(value) {
         var node = new TreeNode(value);
         if(!this.root){//判断是否为根节点
@@ -245,11 +250,37 @@ class WtoTree {
             return 1 + childDepth;
         }
     };
+    // 利用了前序遍历存储每一层的节点个数
+    getWidth(node = this.root) {
+        let h = this.getDepth();
 
+        let count =  []
 
+        let level = 0;
+
+        this.getMaxWidthRecur(node, count, level);
+        console.log(count, h)
+        // Return the maximum value from count array
+        let max = count[0];
+        for (let i = 0; i < h; i++)
+        {
+            if (count[i] > max)
+                max = count[i];
+        }
+        return max;
+    }
+    getMaxWidthRecur(node,count,i) {
+        if (node != null)
+        {
+            if(!count[i]) count[i] = 0
+            count[i]++;
+            this.getMaxWidthRecur(node.left, count, i + 1);
+            this.getMaxWidthRecur(node.right, count, i + 1);
+        }
+    }
 }
 
-var nodes = [6,2,3,4,9,8,7,12,1,22]
+var nodes = [6,2,3, 1, 5, 6]
 var binaryTree = new WtoTree();
 nodes.forEach(function(key){
     binaryTree.insert(key);
@@ -260,3 +291,5 @@ console.log('中序')
 binaryTree.midOrder()
 console.log('后序')
 binaryTree.backOrder()
+// 求宽度
+binaryTree.getWidth()
