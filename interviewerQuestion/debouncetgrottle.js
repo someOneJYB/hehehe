@@ -57,3 +57,30 @@ function flattenArr(arr, result) {
   return result
 }
 
+function throttle(fn, wait, timemout, first){
+    let timer = null;
+    return function() {
+        if(first) {
+            fn.apply(this, arguments)
+            first= false;
+            return;
+        }
+        if(timer)return
+        let ctx=this;
+        timer=setTimeout(function(){
+            fn.apply(ctx, arguments);
+            clearTimeout(timer);
+            timer = null
+        }, timeout)
+    }
+}
+function debounce(fn, timeout) {
+    let timer = null;
+    return function() {
+        clearTimeout(timer);
+        let ctx =   this;
+        timer = setTimeout(()=>{
+            fn.apply(ctx, arguments)
+        }, timeout)
+    }
+}
