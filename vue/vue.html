@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+</body>
+<script src="vue.js"></script>
+<script>
+    var v = new Vue({
+        data: function(){
+            return { a: 1}
+        }
+    })
+    v.watch('a', ()=>{
+        console.log('chnaged')
+    })
+    console.log('change a')
+    v.data.a = 13
+</script>
+</html>
