@@ -185,7 +185,7 @@ function Listener() {
         }
 // 执行的时候如何让引用的实际变了，通过next = now.slice 指向新的地址和listeners不相等了，否则的话listener 会随着变化，在单纯执行的liten函数中没有执行subscribe或者unsubscribe就不会导致next执行slice，造成listener不共享
         const listeners = (now = next)
-        // 形成了自己的会计作用域吗？
+        // 形成了自己的会计作用域
         for (var i = 0; i < listeners.length; i++) {
             console.log('now', now, 'next', next, 'listeners', listeners)
             console.log('更新next后listener是否相等', listeners === next)

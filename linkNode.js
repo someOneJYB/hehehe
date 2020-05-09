@@ -278,6 +278,37 @@ class WtoTree {
             this.getMaxWidthRecur(node.right, count, i + 1);
         }
     }
+    getDfs() {
+        let result = [];
+        dfs(this.root)
+        function dfs(node) {
+            if(node) {
+                dfs(node.left);
+                dfs(node.right);
+                result.push(node.value);
+            }
+        }
+        return result;
+    }
+    getBfs() {
+        let count = [];
+        bfs(this.root, count, 0)
+        function bfs(node, count, i) {
+            if (node != null)
+            {
+                if(!count[i]) count[i] = []
+                count[i].push(node);
+                this.getMaxWidthRecur(node.left, count, i + 1);
+                this.getMaxWidthRecur(node.right, count, i + 1);
+            }
+        }
+        count.forEach((item,index) => {
+            console.log(`第几层${index+1}`);
+            item.forEach(it => {
+                console.log('节点：', it)
+            })
+        })
+    }
 }
 
 var nodes = [6,2,3, 1, 5, 6]

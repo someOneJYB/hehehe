@@ -54,3 +54,46 @@ class Promise {
         })
     }
 }
+Promise.resolve = function(val) {
+    return new Promise((res, rej)=>{
+        res(val)
+    }).catch(err => err)
+}
+Promise.all = function(pros) {
+    var length = props.length;
+    if(!length) return Promise.resolve(props);
+    let result = [];
+    let index = 0;
+    return new Promise(function(resolve, reject) {
+        for(let i = 0; i < props.length; i++) {
+            props[i].then(val => {
+                result[i] = val;
+                index++;
+                if(index === length) resolve(result)
+            }).catch(err => reject(err))
+        }
+    })
+}
+// 限制并行请求要求数组中的元素是返回promise函数, limit 代表并行限制数目
+Promise.limit = function(arr, limit) {
+    let excuting = [];
+    let result = [];
+    let index = 0;
+    excute();
+    function excute() {
+        if(index === arr.length) return Promise.resolve(result);
+        let newStart;
+        let p =  Promise.resolve(arr[index++]());
+        result.push(p);
+        let e = p.then(val => excuting.splice(excuting.indexOf(val), 1));
+        excuting.push(e);
+        if(excuting.length >= limit) {
+            newStart = Promise.resolve(excuting.shift())
+        }
+        if(result.length === arr.length){
+            return Promise.all(result)
+        }
+        return newStart.then(() => excute())
+
+    }
+}
