@@ -2,7 +2,65 @@ function LinkNode(val, next) {
     this.val = val || null;
     this.next = next || null;
 }
+function LinkNode(val, next) {
+    this.val = val;
+    this.next = next || null;
+}
+function addLink(l1,l2){
+    var link1 = l1;
+    var link2 = l2;
+    var start =  null;
+    var next = null;
+    var add =0;
+    while(link1 || link2) {
+        if(link1) {
+            var v1 = link1.val;
+            link1 = link1.next
+        } else {
+            v1 = 0
+        }
+        if(link2) {
+            var v2 =  link2.val;
+            link2 =  link2.next
+        } else {
+            v2 = 0
+        }
+        var sum = v1 + v2 + add;
+        if(sum >= 10){
+            add = Math.floor(sum/10);
+            sum = sum % 10;
+        }else {
+            add =  0;
+        }
+        console.log(sum)
+        if(!next) {
+            next = new LinkNode(sum);
+            if(!start) {
+                start = next
+            }
+        } else {
+            next.next = new LinkNode(sum);
+            next = next.next
+        }
 
+    }
+    return start
+}
+// 链表相加操作
+var a1 = new LinkNode(4)
+var a = a1
+for(var i = 0; i < 5; i++) {
+    a1.next = new LinkNode(i+9)
+    a1 = a1.next;
+}
+var b = new LinkNode(8)
+var b1 = b
+for(var i = 0; i < 3; i++) {
+    b1.next = new LinkNode(i+1)
+    b1 = b1.next;
+}
+addLink(a, b)
+// 分割线
 LinkNode.prototype.getNode = function(val, head) {
     let start = head
     while(start) {

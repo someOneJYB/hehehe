@@ -79,21 +79,27 @@ Promise.limit = function(arr, limit) {
     let excuting = [];
     let result = [];
     let index = 0;
-    excute();
+    excute().then(()=>Promise.all(result))
     function excute() {
-        if(index === arr.length) return Promise.resolve(result);
+        if(index === arr.length) return Promise.resolve();
         let newStart;
         let p =  Promise.resolve(arr[index++]());
         result.push(p);
         let e = p.then(val => excuting.splice(excuting.indexOf(val), 1));
         excuting.push(e);
         if(excuting.length >= limit) {
-            newStart = Promise.resolve(excuting.shift())
-        }
-        if(result.length === arr.length){
-            return Promise.all(result)
+            newStart = Promise.race(excuting)
         }
         return newStart.then(() => excute())
-
     }
+}
+Promise.race = function(arr){
+    if(!arr.length) throw new Error('不可以使用空数组');
+    return new Promise(function(resolve, reject) {
+        for(let i = 0; i < arr.length; i++) {
+            arr[i].then(val => {
+                resolve(val)
+            }).catch(err => reject(err))
+        }
+    })
 }
