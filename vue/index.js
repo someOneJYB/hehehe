@@ -65,9 +65,80 @@ function sqrtNewton(n) {
         console.log(val, last)
         last = val;
         val = (val + n / val) / 2;
-    }
-        // 2018-04-25 22:08 更新
-        // 使用Number.EPSILON表示能够接受的最小误差范围
-    while (Math.abs(val - last) >= Number.EPSILON)
+    } while (Math.abs(val - last) >= Number.EPSILON)
     return val
 }
+// 模拟 class
+function callCheck(ins, Cons) {
+    if(!(ins instanceof Cons)) {
+        throw new Error('请使用 new 方法')
+    }
+}
+function _createClass(cons, protos, statics) {
+    let p = cons.prototype
+    protos.forEach(item => {
+        Object.defineProperty(p, item.key, item.value)
+    })
+    statics.forEach(item => {
+        Object.defineProperty(cons, item.key, item.value)
+    })
+}
+// 继承了 prototype 和 static
+function _inherits(sub, sup) {
+    sub.prototype = Object.create(sup.prototype);
+    sub.__proto__ = sup
+}
+function _createSuper(Sup) {
+    return function() {
+        Sup.call(this, arguments)
+    }
+}
+var A =  (function(){
+    function A() {
+        callCheck(this, A);
+        [...arguments].forEach(item => {
+            this[item] = item
+        })
+    }
+    _createClass(A, [{
+        key: "say",
+        value: function say() {
+            console.log('hi');
+        }
+    }, {
+        key: "d",
+        value: function d() {
+            console.log('d');
+        }
+    }], [{
+        key: "v",
+        value: function v() {
+            console.log('v');
+        }
+    }]);
+    return A
+})()
+// 已知B 继承 A
+var B = (function(){
+    _inherits(B, _A);
+
+    var _super = _createSuper(B);
+
+    function B(a, b) {
+        var _this;
+
+        callCheck(this, B);
+// 不执行 super 无法执行 _this 赋值
+        _this = _super.call(this, a);
+        _this.b = b;
+        return _this;
+    }
+
+    _createClass(B, [{
+        key: "say",
+        value: function say() {
+            console.log('hello');
+        }
+    }]);
+    return B
+})(A)
