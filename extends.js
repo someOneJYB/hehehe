@@ -149,6 +149,32 @@ function cloneObj(obj) {
     }
     return extend(target, obj)
 }
+function cloneFunction(func) {
+    const bodyReg = /(?<={)(.|\n)+(?=})/m;
+    const paramReg = /(?<=\().+(?=\)\s+{)/;
+    const funcString = func.toString();
+    // func.prototype，箭头函数的prototype为undefined，所以通过prototype来判断箭头函数和普通函数
+    if (func.prototype) {
+        // console.log('普通函数');
+        const param = paramReg.exec(funcString);
+        const body = bodyReg.exec(funcString);
+        if (body) {
+            // console.log('匹配到函数体：', body[0]);
+            if (param) {
+                const paramArr = param[0].split(',');
+               //  console.log('匹配到参数：', paramArr);
+                return new Function(...paramArr, body[0]);
+            } else {
+                return new Function(body[0]);
+            }
+        } else {
+            return null;
+        }
+    } else {
+        return eval(funcString);
+    }
+}
+
 // 处理数组引用和对象引用以及函数正则Date类型，未处理object上的symbol属性元素因为 for in 是无法遍历出来的
 var clone = (function clone(){
     let arrHash = new Map();
@@ -162,11 +188,13 @@ var clone = (function clone(){
         }
 
         if(Object.prototype.toString.call(v) === '[object Function]') {
-            let F = function () {
+            if(!v.prototype) {
+                // 箭头函数可以使用 eval 但是普通函数不可以使用会只返回unfined
+                return eval(v.toString());
+            } else {
+                // 参考了很多库都没有普通函数的深拷贝
                 return v
             }
-            var final = eval('F()');
-            return final
         }
 
         if(Object.prototype.toString.call(v) === '[object Array]') {
