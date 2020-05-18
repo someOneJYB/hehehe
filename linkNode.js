@@ -336,6 +336,33 @@ class WtoTree {
             this.getMaxWidthRecur(node.right, count, i + 1);
         }
     }
+    // 查找完整路径是否等于某值
+    FindPath(expectNumber) {
+        var result = [];
+        this.dfsFind(this.root, expectNumber, [], 0, result);
+        return result;
+
+    }
+    dfsFind(root, expectNumber, path, currentSum, result) {
+        console.log(root)
+        currentSum += root.value;
+
+        path.push(root.value);
+        if (currentSum === expectNumber && !root.left && !root.right) {
+            result.push(path.slice(0));
+        }
+        if (root.left != null) {
+            this.dfsFind(root.left, expectNumber, path, currentSum, result);
+        }
+
+        if (root.right != null) {
+            this.dfsFind(root.right, expectNumber, path, currentSum, result);
+        }
+
+        path.pop();
+    }
+
+
     getDfs() {
         let result = [];
         dfs(this.root)
