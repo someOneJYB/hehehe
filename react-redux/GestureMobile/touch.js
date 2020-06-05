@@ -152,7 +152,7 @@ class TouchComp extends Component {
 
     setAction = (e) => {
         const { x1, x2, y1, y2 } = this
-        if(Math.abs(this.x2 - this.x2) > 30 && Math.abs(this.y1 - this.y2) > 30) {
+        if(Math.abs(this.x1 - this.x2) > 30 && Math.abs(this.y1 - this.y2) > 30) {
             e.direction = this.swipeDirection(x1, x2, y1, y2);
             e.distance = Math.abs(this.x1 - this.x2);
             this.swipeTimeout = setTimeout(() => {
