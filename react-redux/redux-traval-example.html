@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模拟redux时间旅行例子</title>
+    <style>
+        div {
+            width: 200px;
+            height: 30px;
+            color: blue;
+            border: 1px solid greenyellow;
+            text-align: center;
+            background-color: #ccc;
+            margin: 30px;
+        }
+    </style>
+</head>
+<body>
+<ul id="state"></ul>
+<div id="reset">reset</div>
+<div id="next">next</div>
+<div id="previous">previous</div>
+<div id="minus">minus</div>
+<div id="sub">sub</div>
+<div id="add">add</div>
+<div id="mul">mul</div>
+<ul id="all"></ul>
+<script>
+    let initState = 0;
+    // 存储action记录的state用于时间旅行
+    let actionStateList = [];
+    let index = 0
+    // 模拟一个简单的 redux
+    function createStore(initialState, reducer) {
+        let listenrs = []
+        let state = initialState;
+        function dispatch(action) {
+            state = reducer(state, action);
+            listenrs.forEach(item => item(action))
+        }
+        function subscribe(fn) {
+            let index = listenrs.push(fn);
+            return function() {
+                listenrs.splice(index, 1)
+            }
+        }
+        function getState() {
+            return state;
+        }
+        function setState(states) {
+            state = states;
+        }
+        return {
+            dispatch,
+            subscribe,
+            getState,
+        }
+    }
+    function reducers(state=initState, action) {
+        if(action.type === 'add') return state + 1;
+        if(action.type === 'minus') return state * 3;
+        if(action.type === 'multy') return state/2;
+        if(action.type === 'sub') return state-1;
+        return state;
+    }
+    //  需要在dispatch的时候需要记录action和在subscribe中记录返回的数据
+    const store = createStore(initState, reducers);
+    // 执行放入subscribe中
+    const allDom = document.getElementById('all');
+    function storeRecord(action) {
+        let state = store.getState();
+        index++
+        actionStateList.push({
+            action,
+            state,
+        })
+        let result = actionStateList.map(item => {
+            return '<li>' + JSON.stringify(item)+ '</li>'
+        })
+        all.innerHTML = result.join('')
+    }
+    store.subscribe(storeRecord);
+    store.dispatch({type: 'init'})
+    const stateDom = document.getElementById('state');
+    function setStateInDom(state) {
+        stateDom.innerHTML = JSON.stringify(state);
+    }
+    document.getElementById('reset').onclick = function() {
+        setStateInDom(actionStateList[0]);
+        index = 0;
+    }
+    document.getElementById('next').onclick = function() {
+        if(index === actionStateList.length) return
+        setStateInDom(actionStateList[index]);
+        index++;
+    }
+    document.getElementById('previous').onclick = function() {
+        if(index === 0) return;
+        setStateInDom(actionStateList[index--]);
+    }
+    document.getElementById('sub').onclick = function() {
+        store.dispatch({ type: 'sub'})
+    }
+    document.getElementById('add').onclick = function() {
+        store.dispatch({ type: 'add'})
+    }
+    document.getElementById('minus').onclick = function() {
+        store.dispatch({ type: 'minus'})
+    }
+    document.getElementById('mul').onclick = function() {
+
+        store.dispatch({ type: 'multy'})
+    }
+</script>
+</body>
+</html>
