@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .img {
+            width: 200px;
+            height: 200px;
+            background-position: center center;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            margin: 30px;
+        }
+    </style>
+</head>
+<body>
+<input type="file" id="imgInput" accept="image/*" multiple/>
+</body>
+<script>
+    let img = document.getElementById('img');
+    let input = document.getElementById('imgInput');
+    input.onchange = function(e) {
+        console.log(e.target.files);
+        let p = Promise.resolve(previewImg(e.target.files[0]))
+            let d = [...e.target.files]
+        d.slice(1).forEach(item => {
+            p = p.then(previewImg(item))
+        });
+        return p;
+        // previewImg(item)
+    }
+    // var reader = new FileReader();
+    // 为什么在外界使用同一个报 DOMException: Failed to execute 'readAsDataURL' on 'FileReader': The object is already busy reading Blobs 都放在了 promise 里面
+    function previewImg (file){
+        return new Promise(function(res, rej){
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function(event) {
+                let img = document.createElement('div');
+                img.className = 'img'
+                img.style.backgroundImage= 'url('+ event.target.result + ')';
+                document.body.appendChild(img);
+                console.log('res......', file)
+                reader.abort()
+                res()
+            }
+
+        })
+
+    }
+</script>
+</html>
