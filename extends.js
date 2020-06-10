@@ -271,7 +271,7 @@ var clone = (function clone(){
 
         if(Object.prototype.toString.call(v) === '[object Array]') {
             var result = [];
-            if(arrHash.get(v)) return v;
+            if(arrHash.get(v)) return arrHash.get(v);
             else arrHash.set(v, result);
             for(let i = 0; i < v.length; i++) {
                 let y = getType(v[i], extend)
@@ -307,7 +307,7 @@ var clone = (function clone(){
                     if(val) {
                         target[key] = val
                     } else {
-                        target[key] = obj[key]
+                        target[key] = v
                     }
                 }
             }

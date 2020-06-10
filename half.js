@@ -4,10 +4,10 @@ function search(arr, target) {
         let midIndex = temp.length>>1;
         let mid = temp[midIndex];
         if(target > mid) {
-            temp = arr.slice(mid+1)
+            temp = arr.slice(midIndex+1)
         } else {
             if(target === mid) return midIndex;
-            temp = arr.slice(0, mid)
+            temp = arr.slice(0, midIndex-1)
         }
     }
     return '无'
