@@ -12,6 +12,7 @@
             text-align: center;
             background-color: #ccc;
             margin: 30px;
+            line-height: 30px;
         }
     </style>
 </head>
@@ -86,17 +87,19 @@
         stateDom.innerHTML = JSON.stringify(state);
     }
     document.getElementById('reset').onclick = function() {
+        index = 1;
         setStateInDom(actionStateList[0]);
-        index = 0;
     }
     document.getElementById('next').onclick = function() {
+        console.log(index, actionStateList.length)
         if(index === actionStateList.length) return
-        setStateInDom(actionStateList[index]);
         index++;
+        setStateInDom(actionStateList[index-1]);
     }
     document.getElementById('previous').onclick = function() {
-        if(index === 0) return;
-        setStateInDom(actionStateList[index--]);
+        if(index === 1) return;
+        index--
+        setStateInDom(actionStateList[index-1]);
     }
     document.getElementById('sub').onclick = function() {
         store.dispatch({ type: 'sub'})
