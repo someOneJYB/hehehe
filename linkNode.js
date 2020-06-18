@@ -223,6 +223,61 @@ class WtoTree {
         };
     };
 
+    // 1, 先依次遍历左孩子, 在栈中依次记录，当左孩子为空时，遍历到叶子节点 //跳回上一层节点, 为防止while循环重复进入，将上一层左孩子置为空
+// 2, 接着遍历右孩子, 在栈中依次记录值，当右孩子为空时, 遍历到叶子节点
+// 跳回上一层节点, 为防止while循环重复进入，将上一层右孩子置为空 后续遍历
+    postorderTraversal(root=this.root) {
+        const res = [], stack = []
+        while (root || stack.length) {
+            if (root.left) {
+                stack.push(root)
+                root = root.left
+            } else if (root.right) {
+                stack.push(root)
+                root = root.right
+            } else {
+                res.push(root.value)
+                root = stack.pop()
+                root && (root.left = null) && (root.right = null)
+            }
+        }
+        return res
+    };
+
+    getPre(root) {
+        const stack = [], res = []
+        root && stack.push(root)
+        // 使用一个栈stack，每次首先输出栈顶元素，也就是当前二叉树根节点，之后依次输出二叉树的左孩子和右孩子
+        while(stack.length > 0) {
+            let cur = stack.pop()
+            res.push(cur.value)
+            // 先入栈的元素后输出，所以先入栈当前节点右孩子，再入栈左孩子
+            cur.right && stack.push(cur.right)
+            cur.left && stack.push(cur.left)
+        }
+        return res
+    };
+
+    mid(root) {
+        const res = [], stack = []
+        let node = root;
+        while (stack.length > 0 || node !== null) {
+            // 这里用当前节点node是否存在，简化代码，
+            if (node) {
+                stack.push(node);
+                node = node.left
+            } else {
+                node = stack.pop();
+                res.push(node.value);
+                node = node.right;
+            }
+        }
+        return res;
+    };
+
+
+
+
     preOrder(node=this.root) {
         if(!node) return;
         console.log(node.value);
@@ -409,3 +464,32 @@ console.log('后序')
 binaryTree.backOrder()
 // 求宽度
 binaryTree.getWidth()
+// 斐波那qie
+const fib = n => {
+    if (typeof n !== "number") {
+        throw new Error("..");
+    }
+    if (n < 2) {
+        return n;
+    }
+    let a = 0;
+    let b = 1;
+    while (n--) {
+        [a, b] = [b, a + b];
+    }
+    return a;
+};
+// 倒退寻找 f(n) = '某个值' 求n
+const getFib = x => {
+    if (x <= 1) {
+        return x;
+    }
+    let a = 0;
+    let b = 1;
+    let n = 1;
+    while (true) {
+        [a, b] = [b, a + b];
+        if(b === x) return n;
+        n++;
+    }
+};
