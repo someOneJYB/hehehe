@@ -18,5 +18,33 @@
     })
     console.log('change a')
     v.data.a = 13
+    function getFunc() {
+        let i = 2;
+        var fn= function() {
+            let flag = true;
+            if (i <= 3) {
+                i++;
+                console.log(i - 1);
+                return fn;
+            }
+            while(true) {
+                for(let j = 2; j < i; j++){
+                    if (i % j === 0) {
+                        flag = false;
+                    }
+                };
+                if(flag) {
+                    i++;
+                    console.log(i-1)
+                    return fn;
+                }
+                if(!flag) {
+                    flag = true;
+                    i++;
+                }
+            }
+        }
+        return fn;
+    }
 </script>
 </html>
