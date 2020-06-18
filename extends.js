@@ -82,7 +82,7 @@ Array.prototype.reduce3 = function(cb, initial) {
        index = 0
     }
     for(index; index < this.length; index++) {
-       pre = cb(pre, this[index])
+       pre = cb(pre, this[index], index, this)
     }
     return pre;
 }
@@ -90,7 +90,7 @@ Array.prototype.reduce3 = function(cb, initial) {
 Array.prototype.map1 = function(cb) {
     let result = [];
     for(let i = 0; i < this.length; i++) {
-        result.push(cb(i, this[i]))
+        result.push(cb(this[i], i, this))
     }
     return result;
 }

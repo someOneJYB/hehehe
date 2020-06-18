@@ -59,6 +59,7 @@ Promise.resolve = function(val) {
         res(val)
     }).catch(err => err)
 }
+// 请记住all的实现好吗？再说一遍好不好？
 Promise.all = function(pros) {
     var length = props.length;
     if(!length) return Promise.resolve(props);

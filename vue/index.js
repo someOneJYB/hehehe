@@ -85,7 +85,7 @@ function _createClass(cons, protos, statics) {
 }
 // 继承了 prototype 和 static
 function _inherits(sub, sup) {
-    sub.prototype = Object.create(sup.prototype);
+    sub.prototype = Object.create(sup);
     sub.__proto__ = sup
 }
 function _createSuper(Sup) {

@@ -62,7 +62,7 @@ function twoSum(nums, target, index) {
     }
     return result;
 }
-twoSum([1,4,2,3,4], 5)
+twoSum([1,4,2], 5)
 
 //现在有10个并发的请求, 希望实现一个队列, 来实现对于并发数量的控制。 第一个参数是并发数，第二个是超时时间，超时时间内不返回，则取消请求并补齐并发数量的请求
 function race(arr, limit, timeout){

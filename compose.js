@@ -146,3 +146,14 @@ function getRadom(result) {
     }
     return result
 }
+function getRadomArr(arr) {
+    let len = arr.length - 1;
+    while(len){
+        let index = Math.floor(Math.random()*(len-1));
+        let t = arr[index];
+        arr[index] = arr[len];
+        arr[len] = t;
+        len--;
+    }
+    return arr;
+}
