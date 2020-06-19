@@ -1,3 +1,4 @@
+// 在 reject 的时候会触发 onReject 不加 catch 也不会执行unhandleRejection 问题，加了catch执行了then中的onReject 就不会执行catch了，但是catch是为了处理在then中的error的
 class Promise {
     constructor(fn) {
         this.value = null;
@@ -28,27 +29,40 @@ class Promise {
     then(onFufill = val => val, onReject = val => val) {
         return new Promise((resolve, reject) => {
             if(this.status !== 'pending') {
-                let isFufilled = this.status !== 'reject'
-                let val = isFufilled ? onFufill(this.value) : onReject(this.value)
-                if(val instanceof Promise) {
-                    val.then(resolve, reject)
-                } else {
-                    isFufilled ? resolve(val) : reject(val)
+                try {
+                    let isFufilled = this.status !== 'reject'
+                    let val = isFufilled ? onFufill(this.value) : onReject(this.value)
+                    if(val instanceof Promise) {
+                        val.then(resolve, reject)
+                    } else {
+                        isFufilled ? resolve(val) : reject(val)
+                    }
+                } catch(err) {
+                    reject(err)
                 }
             } else {
                 this.resolveCallbacks.push((val)=>{
-                    if(val instanceof Promise) {
-                        val.then(resolve, reject)
-                    } else {
-                        resolve(val)
+                    try {
+                        if(val instanceof Promise) {
+                            val.then(resolve, reject)
+                        } else {
+                            resolve(val)
+                        }
+                    } catch(err) {
+                        reject(err)
                     }
                 })
                 this.rejectCallbacks.push((val)=>{
-                    if(val instanceof Promise) {
-                        val.then(resolve, reject)
-                    } else {
-                        reject(val)
+                    try {
+                        if(val instanceof Promise) {
+                            val.then(resolve, reject)
+                        } else {
+                            reject(val)
+                        }
+                    } catch(err) {
+                        reject(err)
                     }
+
                 })
             }
         })
@@ -86,7 +100,7 @@ Promise.limit = function(arr, limit) {
         let newStart;
         let p =  Promise.resolve(arr[index++]());
         result.push(p);
-        let e = p.then(val => excuting.splice(excuting.indexOf(val), 1));
+        let e = p.then(val => excuting.splice(excuting.indexOf(e), 1));
         excuting.push(e);
         if(excuting.length >= limit) {
             newStart = Promise.race(excuting)
