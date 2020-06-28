@@ -97,7 +97,7 @@ Promise.limit = function(arr, limit) {
     excute().then(()=>Promise.all(result))
     function excute() {
         if(index === arr.length) return Promise.resolve();
-        let newStart;
+        let newStart = Promise.resolve();
         let p =  Promise.resolve(arr[index++]());
         result.push(p);
         let e = p.then(val => excuting.splice(excuting.indexOf(e), 1));
