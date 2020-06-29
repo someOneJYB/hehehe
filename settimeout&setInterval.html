@@ -30,5 +30,134 @@
 
 // 三、setTimeout(匿名函数, time)这种形式下，匿名函数中的变量也需要根据上下文来判断，具体问题具体分析
     // setInterval 也遵循这样的逻辑，所以需要注意和处理。
+    // {a:[{b:["c","d"]}]} => {"a[0].b[0]":"c","a[0].b[1]":"d"}
+    // 打平JSON对象
+    let all = {}
+    function flattenObj(obj, parent) {
+        if(obj instanceof Array) {
+            for(let i = 0; i < obj.length; i++) {
+                common(obj[i], `[${i}]`, parent)
+            }
+        } else {
+            for(let i in obj) {
+                common(obj[i], i, parent)
+            }
+        }
+    }
+    function common(v, key, parent) {
+        let i = ''
+        if(parent !== '' && key.indexOf('[') === -1) {
+            i = '.' + i
+        }
+        let p  =  parent + i + key
+        if(typeof v === 'object') {
+            flattenObj(v, p)
+        } else {
+            all[p] = v
+        }
+    }
+    flattenObj({
+        "a": {
+            "b": {
+                "c": {
+                    "d": 1
+                }
+            }
+        },
+        "aa": 2,
+        "c": [
+            1,
+            2
+        ]
+    }, '');
+    // 打平json对象和恢复json对象
+    let falttenJSONObj =  (function(){
+        let result = {}
+        let f =  {}
+        function flattenObj(obj, parent) {
+            if(obj instanceof Array) {
+                for(let i = 0; i < obj.length; i++) {
+                    common(obj[i], `[${i}]`, parent)
+                }
+            } else {
+                for(let i in obj) {
+                    common(obj[i], i, parent)
+                }
+            }
+        }
+        function common(v, key, parent) {
+            let i = ''
+            if(parent !== '' && key.indexOf('[') === -1) {
+                i = '.' + i
+            }
+            let p  =  parent + i + key
+            if(typeof v === 'object') {
+                flattenObj(v, p)
+            } else {
+                result[p] = v
+            }
+        }
+        function flattenJSON(obj) {
+            result = {};
+            flattenObj(obj, '');
+            return result;
+        }
+        function ci(key, parent, v) {
+            if(key.indexOf('[') > -1) {
+                let p;
+                if(!parent[key.split('[')[0]]) {
+                    parent[key.split('[')[0]] = [];
+                }
+                p = parent[key.split('[')[0]]
+                p[parseInt(key.split('[')[1],10)] = v || {};
+                return p
+            }else {
+                parent[key] = v || parent[key] || {};
+                parent = parent[key];
+                return parent
+            }
+        }
+        function flattenJSONToObj(obj) {
+            f = {};
+            let parent = f;
+            for(let i in obj) {
+                let key = (i+'').split('.');
+                if(key.length ===  1) {
+                    ci(key[0], f, obj[i])
+                } else {
+                    parent = ci(key[0], f)
+                    for(let j = 1; j < key.length; j++) {
+                        if(j === key.length - 1)  {
+                            parent = ci(key[j], parent, obj[i])
+                        }else {
+                            parent = ci(key[j], parent)
+                        }
+                    }
+                }
+
+            }
+            return f;
+        }
+        return {
+            flattenJSON: flattenJSON,
+            flattenJSON2Obj: flattenJSONToObj,
+        }
+    })()
+    falttenJSONObj.flattenJSON({
+        "a": {
+            "b": {
+                "c": {
+                    "d": 1
+                }
+            }
+        },
+        "aa": 2,
+        "c": [
+            1,
+            2
+        ]
+    });
+    falttenJSONObj.flattenJSON2Obj({"a[0].b[0]":"c","a[0].b[1]":"d"});
+    falttenJSONObj.flattenJSON2Obj({"a.b.c.d": 1, "aa": 2, "c[0]": 1, "c[1]": 2});
 </script>
 </html>
