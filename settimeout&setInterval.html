@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>settimeout&&setinterval</title>
+</head>
+<body>
+
+</body>
+<script>
+    // setTimeout 主要是间隔一段时间执行逻辑，setInterval 主要是每隔相同的时间执行逻辑，众所周知浏览器中是是有event-loop的但是在这二者均属于宏任务，所以被触发的时候是需要查看任务队列清空的时候才有机会获得执行时机，那么问题出现了，setInterval 在执行的时候会在间隔一段时间内防止在任务队列，但是会统一清空也就是说会有可能 setInterval 会一次性执行多个不会有间隔，这就是为什么不建议使用 setInterval 而采用 setTimeOut 代替 setInterval，因为多个 setTimeout 放进去以后就会按照一定的间隔去执行多个，这就是二者的差别。累计效应（上面提到的），如果setInterval代码在（setInterval）再次添加到队列之前还没有完成执行， 就会导致定时器代码连续运行好几次，而之间没有间隔。 就算正常间隔执行，多个setInterval的代码执行时间可能会比预期小（因为代码执行需要一定时间）
+    // setTimeout 中的 this 如果是普通函数指向的都是 window,setTimeout中所执行函数中的this，永远指向window！！注意是要延迟执行的函数中的this哦！！setTimeout 中的匿名函数指向是自身的绑定的 this，但是非匿名函数内部的 this 指向的是 window
+    var i = 90;
+    let o  =  {
+        i: 12,
+        fn: function() {
+            console.log(this.i, this);
+            setTimeout(function(){console.log(this)
+            // window
+                })
+        }
+    }
+    setTimeout(function(){o.fn()}, 0)
+    // 12
+    setTimeout(o.fn, 0)
+    // 90
+    // 一、setTimeout中的延迟执行代码中的this永远都指向window
+
+    // 二、setTimeout(this.method, time)这种形式中的this，即上文中提到的第一个this，认为全局作用域，但不一定总是处于全局下，具体问题具体分析。
+
+// 三、setTimeout(匿名函数, time)这种形式下，匿名函数中的变量也需要根据上下文来判断，具体问题具体分析
+    // setInterval 也遵循这样的逻辑，所以需要注意和处理。
+</script>
+</html>
