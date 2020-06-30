@@ -178,7 +178,7 @@ function cloneFunction(func) {
 // 处理数组引用和对象引用以及函数正则Date类型，未处理object上的symbol属性元素因为 for in 是无法遍历出来的
 var clone = (function clone(){
     let arrHash = new Map();
-    let objHash = new Map()
+    let objHash = new Map();
     function getType(v, extend) {
         if(Object.prototype.toString.call(v) === '[object RegExp]') {
             return new RegExp(v)
@@ -221,6 +221,8 @@ var clone = (function clone(){
 
     }
     function cloneObj(obj) {
+        arrHash = new Map();
+        objHash = new Map();
         let target = {};
         function extend(target, obj) {
             if(objHash.get(obj)) {

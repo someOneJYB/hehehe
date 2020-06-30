@@ -30,6 +30,22 @@
 
 // 三、setTimeout(匿名函数, time)这种形式下，匿名函数中的变量也需要根据上下文来判断，具体问题具体分析
     // setInterval 也遵循这样的逻辑，所以需要注意和处理。
+    // 用setTimeout实现setInterval
+    function interval(delay, fn) {
+        let timer = null
+        function fns(...args) {
+            let self = this;
+            timer = setTimeout(function() {
+                fn.apply(self, args);
+                fns.apply(self, args)
+            }, delay)
+            return function() {
+                clearTimeout(timer)
+            }
+        }
+        return fns;
+
+    }
     // {a:[{b:["c","d"]}]} => {"a[0].b[0]":"c","a[0].b[1]":"d"}
     // 打平JSON对象
     let all = {}
