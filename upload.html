@@ -12,15 +12,40 @@
             background-repeat: no-repeat;
             margin: 30px;
         }
+        #parent{
+            position: relative;  /*子绝父相*/
+        }
+        #left {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #f00;
+            width: 100px;
+            height: 500px;
+        }
+        #right {
+            position: absolute;
+            top: 0;
+            left: 100px;  /*值大于等于#left的宽度*/
+            right: 0;
+            background-color: #0f0;
+            height: 500px;
+        }
+
     </style>
 </head>
 <body>
+<div id="parent">
+    <div id="left">左列定宽</div>
+    <div id="right">右列自适应</div>
+</div>
 <input type="file" id="imgInput" accept="image/*" multiple/>
 </body>
 <script>
     let img = document.getElementById('img');
     let input = document.getElementById('imgInput');
     input.onchange = function(e) {
+        console.log(this, 'this')
         console.log(e.target.files);
         let p = Promise.resolve(previewImg(e.target.files[0]))
             let d = [...e.target.files]
@@ -49,5 +74,20 @@
         })
 
     }
+    // xhr.status 不是一定在 readyState 是 4 的时候执行才有 200 直言完成了某个阶段也是 200
+    var xhr= new XMLHttpRequest(),
+        method = "GET",
+        url = "https://developer.mozilla.org/";
+    console.log('xhr.readyState', xhr.readyState, xhr.status)
+    xhr.open(method, url, true);
+    console.log('xhr.readyState', xhr.readyState, xhr.status)
+    xhr.onreadystatechange = function () {
+        console.log('xhr.readyState', xhr.readyState, xhr.status)
+        if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+            console.log(xhr.responseText)
+        }
+    }
+    xhr.send();
+    console.log('xhr.readyState', xhr.readyState, xhr.status)
 </script>
 </html>

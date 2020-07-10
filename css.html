@@ -11,9 +11,23 @@
 </head>
 <body>
 <div>
+    <div class="block block-1" data-id=”block-1">
+    <div class="block block-2" data-id=”block-2"></div>
+</div>
     <span>1</span>
     <p>2</p>
     <span>3</span>
 </div>
 </body>
+<script>
+    const blocks = document.querySelectorAll('.block');
+    function handleClick(e){
+        console.log(`data-id: ${this.dataset.id}`)
+    }
+    blocks.forEach(block => {
+        block.addEventListener('click', handleClick, {
+            capture: true,
+        })
+    })
+</script>
 </html>

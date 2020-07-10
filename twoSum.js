@@ -36,6 +36,24 @@ function erFen(arr, target) {
     return flag
 }
 find7([1, 2, 3, 5], 5)
+var arr = [1, 4, 5, 6, 12, 43, 111];
+function search(arr, low, high, num) {
+    var mid = Math.floor((low + high) / 2);
+    if (low > high) {
+        return -1;
+    }
+    if(arr[mid] === num) {
+        return mid;
+    }
+    if(arr[mid] > num) {
+        high = mid - 1;
+        return search(arr, low, high, num);
+    }
+    if(arr[mid] < num) {
+        low = mid + 1;
+        return search(arr, low, high, num);
+    }
+}
  // method 3Sum 求和
 function threeSum(arr, target, index) {
     if(arr.length < 3) return []
@@ -111,7 +129,7 @@ function asyncPool(poolLimit, array, timeOut) {
         }
         const item = array[i++];
         // 在 axios 中执行 cancal 会执行 reject，因此可以在 catch 中继续执行重试 onTimeout 也执行的是reject，所以不要依赖库做其他的
-        const p = Promise.resolve().then(() => item()).catch(() => item());
+        const p = Promise.resolve().then(() => item(), () => item()).catch(() => item());
         ret.push(p);
         // 已经执行结束存储结果集
         const e = p.then(() => {console.log('执行');executing.splice(executing.indexOf(e), 1)});

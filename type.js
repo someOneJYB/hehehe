@@ -188,3 +188,33 @@ function chufa(a, b) {
     }
     return times
 }
+// 如果在 [2,sqrt(n)] 这个区间之内没有发现可整除因子，就可以直接断定 n 是素数了
+function findZhiNum() {
+    let i = 2;
+    var fn= function() {
+        let flag = true;
+        if (i <= 3) {
+            i++;
+            console.log(i - 1);
+            return fn;
+        }
+        while(true) {
+            // sqrt(n) 的内层时间复杂度
+            for(let j = 2; j*j <= i; j++){
+                if (i % j === 0) {
+                    flag = false;
+                }
+            };
+            if(flag) {
+                console.log(i)
+                i++;
+                return fn;
+            }
+            if(!flag) {
+                flag = true;
+                i++;
+            }
+        }
+    }
+    return fn;
+}

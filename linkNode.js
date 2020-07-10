@@ -138,9 +138,9 @@ function bubleSort(arr) {
                 arr[i] = arr[j];
                 arr[j] = t;
             }
-            if(!flag) {
-                return
-            }
+        }
+        if(!flag) {
+            return arr
         }
     }
 }
@@ -222,6 +222,26 @@ class WtoTree {
             }
         };
     };
+    // 前序：根->左->右
+    // 后序：左->右->根
+    //
+    // 那么可以把后序当作：根->右->左，然后再反转一下即可。
+    postorderTraversal = function(root) {
+        if(!root) return [];
+        const res = [], stack = [];
+        stack.push(root)
+        while (root || stack.length) {
+            root = stack.pop();
+            res.push(root && root.val)
+            if(root &&root.left) {
+                stack.push(root.left)
+            }
+            if(root&& root.right) {
+                stack.push(root.right)
+            }
+        }
+        return res.reverse().filter(item =>item)
+    };
 
     // 1, 先依次遍历左孩子, 在栈中依次记录，当左孩子为空时，遍历到叶子节点 //跳回上一层节点, 为防止while循环重复进入，将上一层左孩子置为空
 // 2, 接着遍历右孩子, 在栈中依次记录值，当右孩子为空时, 遍历到叶子节点
@@ -276,6 +296,22 @@ class WtoTree {
     };
 
 
+    getLCA(root=this.root, node1, node2) {
+        if(root == null)
+            return null;
+        if(root === node1 || root === node2)
+            return root;
+        let left = this.getLCA(root.left, node1, node2);
+        let right = this.getLCA(root.right, node1, node2);
+        if(left !== null && right !== null)
+            return root.value;
+        else if(left !== null)
+            return left.value;
+        else if (right !== null)
+            return right.value;
+        else
+            return null;
+    }
 
 
     preOrder(node=this.root) {
@@ -285,6 +321,7 @@ class WtoTree {
         this.preOrder(node.right)
     }
 
+
     midOrder(node=this.root) {
         if(!node) return;
         this.midOrder(node.left)
@@ -292,12 +329,14 @@ class WtoTree {
         this.midOrder(node.right)
     }
 
+
     backOrder(node=this.root) {
         if(!node) return;
         this.backOrder(node.left)
         this.backOrder(node.right)
         console.log(node.value);
     }
+
 
     searchMax(node = this.root){
         let value;
@@ -391,6 +430,7 @@ class WtoTree {
             this.getMaxWidthRecur(node.right, count, i + 1);
         }
     }
+
     // 查找完整路径是否等于某值
     FindPath(expectNumber) {
         var result = [];
@@ -398,6 +438,8 @@ class WtoTree {
         return result;
 
     }
+
+
     dfsFind(root, expectNumber, path, currentSum, result) {
         console.log(root)
         currentSum += root.value;
@@ -430,6 +472,8 @@ class WtoTree {
         }
         return result;
     }
+
+
     getBfs() {
         let count = [];
         bfs(this.root, count, 0)
@@ -463,6 +507,7 @@ binaryTree.midOrder()
 console.log('后序')
 binaryTree.backOrder()
 // 求宽度
+binaryTree.getLCA(binaryTree.root, binaryTree.root.right, binaryTree.root.left.right)
 binaryTree.getWidth()
 // 斐波那qie
 const fib = n => {
@@ -493,3 +538,113 @@ const getFib = x => {
         n++;
     }
 };
+
+function factorial(num) {
+    const dp = [1, 1]
+    for (let i = 2; i < num; i++) {
+        dp[i] = dp[i - 1] + dp[i - 2]
+    }
+    return dp[num - 1]
+}
+
+function TailDg() {
+
+}
+/**
+ * @param {number} capacity
+ */
+var LRUCache = class {
+
+    constructor(capacity) {
+        this.cache = new Map();
+        this.capacity = capacity;
+    }
+
+    /**
+     * @param {number} key
+     * @return {number}
+     */
+    get(key) {
+        let cache = this.cache;
+        if (cache.has(key)) {
+            let temp = cache.get(key)
+            cache.delete(key);
+            cache.set(key, temp);
+            return temp;
+        } else {
+            return -1;
+        }
+    };
+
+    /**
+     * @param {number} key
+     * @param {number} value
+     * @return {void}
+     */
+    put(key, value) {
+        let cache = this.cache;
+        if (cache.has(key)) {
+            cache.delete(key);
+        } else if (cache.size >= this.capacity) {
+            cache.delete(cache.keys().next().value);
+        }
+        cache.set(key, value);
+    };
+};
+// bitMap 使用的时候位32位，减少内存的使用
+// 00000000000000000000000 32位使用的内存减少 采用2-Bitmap共需内存2^32 * 2 bit=1 GB内存，还可以接受。然后扫描这2.5亿个整数，查看Bitmap中相对应位，如果是00变01，01变10，10保持不变。一个字节可以存放8个数，那我只要两个byte就可以解决问题了
+const BitMap = function () {
+    this.data = [];
+};
+// 然后是两个基础函数, 用来计算一个数应该存在 data 数组里的索引, 以及在整数里的具体位置.
+
+    BitMap.prototype.getIdx = num => parseInt(num / 32);
+BitMap.prototype.getPos = num => num % 32;
+// 然后接下来就是添加操作, 就是找到具体的正数用 |= 操作符将相应位数置 1 即可:
+
+    BitMap.prototype.add = function (num) {
+        const index = this.getIdx(num);
+        const pos = this.getPos(num);
+
+        if (this.data[index] === undefined) this.data[index] = 0;
+        this.data[index] |= Math.pow(2, pos);
+    };
+// 判断是否存在也很简单, 找到位置做按位与操作就可以得到结果:
+
+BitMap.prototype.exist = function (num) {
+    const index = this.getIdx(num);
+    const pos = this.getPos(num);
+
+    return !!(this.data[index] && (this.data[index] & Math.pow(2, pos)));
+};
+// 字符串的全排列,拿出第一个和剩下的全排列结合
+function fullpermutate(str) {
+    var result = [];
+    if (str.length > 1) {
+        //遍历每一项
+        for (var m = 0; m < str.length; m++) {
+            //拿到当前的元素
+            var left = str[m];
+            //除当前元素的其他元素组合
+            var rest = str.slice(0, m) + str.slice(m + 1, str.length);
+            //上一次递归返回的全排列
+            var preResult = fullpermutate(rest);
+            //组合在一起
+            for (var i = 0; i < preResult.length; i++) {
+                var tmp = left + preResult[i]
+                result.push(tmp);
+            }
+        }
+    } else if (str.length == 1) {
+        result.push(str);
+    }
+    return result.filter((item, index) => index === result.indexOf(item));
+}
+// 获得尾递归
+// fib_rail_rec(n, 1, 1)
+function fib_rail_rec(n, first, second)
+{
+    if (n == 1) return first;
+    if (n == 2) return second;
+    return fib_rail_rec(n-1, second, second+first);
+}
