@@ -26,7 +26,22 @@ class Promise {
             reject(err)
         }
     }
+    // promiseA+规范需要处理then是函数的普通对象为then中传递参数同时把resolve和reject传递进去
     then(onFufill = val => val, onReject = val => val) {
+        // 处理thenable和then中非函数情况也会resolve但是会resolve只不过给的值是undefined
+        function dealThenableFunc(then, resolve, reject) {
+            then(function(val){
+                resolve(val)
+            }, function(err){
+                reject(err)
+            });
+        }
+        if(!onFufill instanceof Function) {
+            onFufill = () => {}
+        }
+        if(!onReject instanceof Function) {
+            onReject = () => {}
+        }
         return new Promise((resolve, reject) => {
             if(this.status !== 'pending') {
                 try {
@@ -35,6 +50,12 @@ class Promise {
                     if(val instanceof Promise) {
                         val.then(resolve, reject)
                     } else {
+                        // 处理then函数但是还需要
+                        let then = val.then;
+                        if(then instanceof Function) {
+                            dealThenableFunc(then, resolve, reject)
+                            return;
+                        }
                         isFufilled ? resolve(val) : reject(val)
                     }
                 } catch(err) {
@@ -46,6 +67,10 @@ class Promise {
                         if(val instanceof Promise) {
                             val.then(resolve, reject)
                         } else {
+                            if(val.then instanceof Function) {
+                                dealThenableFunc(val.then, resolve, reject)
+                                return;
+                            }
                             resolve(val)
                         }
                     } catch(err) {
@@ -57,6 +82,10 @@ class Promise {
                         if(val instanceof Promise) {
                             val.then(resolve, reject)
                         } else {
+                            if(val.then instanceof Function) {
+                                dealThenableFunc(val.then, resolve, reject)
+                                return;
+                            }
                             reject(val)
                         }
                     } catch(err) {
