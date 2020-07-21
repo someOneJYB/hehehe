@@ -11,6 +11,7 @@ SingleObject.getInstance = (function () {
         return instance;
     }
 })()
+
 function singleInstance(){
     let instance;
     return function() {
@@ -22,6 +23,22 @@ function singleInstance(){
         }
     }
 }
+let Single = (function(){
+    let flag = false;
+    let instance = null;
+    function Sup(){
+        if(flag) throw Error('外界调用问题')
+    }
+    function getInstance() {
+        if(!instance) {
+            instance = new Sup();
+        }
+        return instance;
+    }
+    return getInstance;
+})();
+let ins = Single();
+// new ins.__proto__.constructor(); 防止在外界被 new
 const all = singleInstance();
 const obj11 = all();
 const obj22 = all();
