@@ -12,6 +12,6 @@ export default class Link extends Component {
         this.props.onClick && this.props.onClick()
     }
     render() {
-        return (<a href={this.props.href} onClick={this.click} />)
+        return <a href={this.props.href} onClick={this.click} />
     }
 }

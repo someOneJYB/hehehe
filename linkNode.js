@@ -321,6 +321,16 @@ class WtoTree {
         this.preOrder(node.right)
     }
 
+    getPathValue(node=this.root, sum)  {
+        if(!node) return false;
+        let val = node.val;
+        if(val === sum && !node.left && !node.right) {
+            return true;
+        }
+        node.left && this.getPathValue(node.left, sum-val);
+        node.right && this.getPathValue(node.right, sum-val)
+    }
+
 
     midOrder(node=this.root) {
         if(!node) return;
