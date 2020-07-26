@@ -327,8 +327,7 @@ class WtoTree {
         if(val === sum && !node.left && !node.right) {
             return true;
         }
-        node.left && this.getPathValue(node.left, sum-val);
-        node.right && this.getPathValue(node.right, sum-val)
+        return this.getPathValue(node.left, sum-val)  || this.getPathValue(node.right, sum-val);
     }
 
 
