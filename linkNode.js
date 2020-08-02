@@ -657,3 +657,32 @@ function fib_rail_rec(n, first, second)
     if (n == 2) return second;
     return fib_rail_rec(n-1, second, second+first);
 }
+// 连续子数组的最大和
+/*
+* 如果i=0，就是第一项；
+* 如果f(i-1)<=0,那么就将舍弃前面的子数列，因为加起来会使后面的自数列的值<=自身子数列的值，所以舍弃。
+* 如果i不等于0，且f(i-1)>0,那么它会使后面的自数列的值>自身子数列的值，所以保留
+* */
+function FindGreatestSumOfSubArray(array) {
+    if (Array.isArray(array) && array.length > 0) {
+        let sum = array[0];
+        let max = array[0];
+        for (let i = 1; i < array.length; i++) {
+            if (sum < 0) {
+                // 第一项小于 0 则需要我们处理的是舍弃重新开始
+                sum = array[i];
+            } else {
+                // 相加的是因为总和的话是因为会比之前大
+                sum = sum + array[i];
+            }
+            // 更新最大值 max 总是上一次的总和
+            if (sum > max) {
+                max = sum;
+            }
+        }
+        return max;
+    }
+    return 0;
+}
+
+console.log(FindGreatestSumOfSubArray([1, -2, 3, 10, -4, 7, 2, -5])) //20
