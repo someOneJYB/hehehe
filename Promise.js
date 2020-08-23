@@ -1,4 +1,5 @@
 // 在 reject 的时候会触发 onReject 不加 catch 也不会执行unhandleRejection 问题，加了catch执行了then中的onReject 就不会执行catch了，但是catch是为了处理在then中的error的
+// 考虑 then 中传递的是不是函数时候默认值是上一个promise 中的值 let f = new Promise((res, rej) => res(1)).then(v=>4).then(5).then(console.log) 打印的是返回的 then 中函数 4 默认的 onFufill 是 默认透传上一个值的
 class Promise {
     constructor(fn) {
         this.value = null;
@@ -17,7 +18,7 @@ class Promise {
             this.value = val;
             this.status = 'reject';
             setTimeout(() => {
-                this.rejectCallbacks.forEach(item => item(val))
+                this.rejectCallbacks.forEach(item => item(val));
             }, 0)
         }
         try {
@@ -36,27 +37,31 @@ class Promise {
                 reject(err)
             });
         }
-        if(!onFufill instanceof Function) {
-            onFufill = () => {}
+        if(typeof onFufill !== 'function') {
+            onFufill = v => v
         }
-        if(!onReject instanceof Function) {
-            onReject = () => {}
+        if(typeof onReject !== 'function') {
+            onReject = v => v
         }
         return new Promise((resolve, reject) => {
             if(this.status !== 'pending') {
                 try {
-                    let isFufilled = this.status !== 'reject'
+                    let isFufilled = this.status !== 'reject';
                     let val = isFufilled ? onFufill(this.value) : onReject(this.value)
+                    console.log(val, 'end')
                     if(val instanceof Promise) {
+                        console.log('promise')
                         val.then(resolve, reject)
                     } else {
                         // 处理then函数但是还需要
-                        let then = val.then;
-                        if(then instanceof Function) {
-                            dealThenableFunc(then, resolve, reject)
-                            return;
+                        if(typeof val === 'object') {
+                            let then = val.then;
+                            if(then && typeof then !== 'function') {
+                                dealThenableFunc(then, resolve, reject)
+                                return;
+                            }
                         }
-                        isFufilled ? resolve(val) : reject(val)
+                        isFufilled ? resolve(val || this.value) : reject(val || this.value)
                     }
                 } catch(err) {
                     reject(err)
@@ -67,9 +72,11 @@ class Promise {
                         if(val instanceof Promise) {
                             val.then(resolve, reject)
                         } else {
-                            if(val.then instanceof Function) {
-                                dealThenableFunc(val.then, resolve, reject)
-                                return;
+                            if(typeof val === 'object') {
+                                if(val.then instanceof Function) {
+                                    dealThenableFunc(val.then, resolve, reject)
+                                    return;
+                                }
                             }
                             resolve(val)
                         }
@@ -82,9 +89,11 @@ class Promise {
                         if(val instanceof Promise) {
                             val.then(resolve, reject)
                         } else {
-                            if(val.then instanceof Function) {
-                                dealThenableFunc(val.then, resolve, reject)
-                                return;
+                            if(typeof val === 'object') {
+                                if (val.then instanceof Function) {
+                                    dealThenableFunc(val.then, resolve, reject)
+                                    return;
+                                }
                             }
                             reject(val)
                         }
@@ -96,11 +105,26 @@ class Promise {
             }
         })
     }
+    catch(fn) {
+        return this.then(undefined, fn)
+    }
+    finally(cb) {
+        return this.then((v) => {
+            Promise.resolve(cb()).then(() => v)
+        }, err => {
+            Promise.resolve(cb()).then(() => throw err)
+        })
+    }
 }
 Promise.resolve = function(val) {
     return new Promise((res, rej)=>{
         res(val)
     }).catch(err => err)
+}
+Promise.reject = function(val) {
+    return new Promise((res, rej)=>{
+        rej(val)
+    })
 }
 // 请记住all的实现好吗？再说一遍好不好？
 Promise.all = function(pros) {
