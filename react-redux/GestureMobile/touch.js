@@ -65,12 +65,10 @@ class TouchComp extends Component {
         } else {
             this.isSingleTap = true;
         }
-        setTimeout(() => {
+        this.afterLongTap = false;
+        this.longTapTimeout = setTimeout(() => {
             this.emitEvent('onLongTap', e);
             this.afterLongTap = true;
-            this.afterLongTapTimeout = setTimeout(() => {
-                this.afterLongTap = false;
-            }, 1000);
         }, 750)
     }
     /*
@@ -82,8 +80,7 @@ class TouchComp extends Component {
         // 在这里判断进行的是放大旋转还是简单的单击滑动
         let cx = e.touches[0].pageX;
         let cy = e.touches[0].pageY;
-        this.afterLongTap = false;
-        clearTimeout(this.afterLongTap)
+        clearTimeout(this.longTapTimeout);
         // 多手指
         if(e.touches.length > 1) {
             // 获取到第一次的斜边对比后可以获得放大缩小的值
@@ -161,7 +158,8 @@ class TouchComp extends Component {
         } else {
             // tap 事件
             if (this.afterLongTap) {
-                clearTimeout(this.afterLongTapTimeout);
+                this.emitEvent('onLongTapEnd', e);
+                clearTimeout(this.longTapTimeout);
                 this.afterLongTap = false;
             } else {
                 this.tapTimeout = setTimeout(() => {
